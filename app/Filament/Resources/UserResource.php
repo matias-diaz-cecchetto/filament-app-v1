@@ -32,7 +32,7 @@ class UserResource extends Resource
                     ->maxLength(255),
                 Forms\Components\DateTimePicker::make('email_verified_at'),
                 Forms\Components\TextInput::make('password')
-                    ->password()
+                    ->json()
                     ->required()
                     ->maxLength(255),
             ]);
