@@ -25,16 +25,33 @@ class EmployeeResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('country_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('state_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('city_id')
-                    ->required()
-                    ->numeric(),
-
+                Forms\Components\Section::make('Relationships')
+                    ->schema([
+                        Forms\Components\Select::make('country_id')
+                            ->relationship(name: 'country', titleAttribute: 'name')
+                            ->searchable() // Buscador
+                            //->multiple() // Seleccion multiple
+                            ->preload() // Lectura de todos
+                            ->required(),
+                        Forms\Components\Select::make('state_id')
+                            ->relationship(name: 'state', titleAttribute: 'name')
+                            ->searchable() // Buscador
+                            //->multiple() // Seleccion multiple
+                            ->preload() // Lectura de todos
+                            ->required(),
+                        Forms\Components\Select::make('city_id')
+                            ->relationship(name: 'city', titleAttribute: 'name')
+                            ->searchable() // Buscador
+                            //->multiple() // Seleccion multiple
+                            ->preload() // Lectura de todos
+                            ->required(),
+                        Forms\Components\Select::make('departament_id')
+                            ->relationship(name: 'departament', titleAttribute: 'name')
+                            ->searchable() // Buscador
+                            //->multiple() // Seleccion multiple
+                            ->preload() // Lectura de todos
+                            ->required(),
+                    ])->columns(2),
                 Forms\Components\Section::make('User Name')
                     ->description('Put the user name datails in.')
                     ->schema([
