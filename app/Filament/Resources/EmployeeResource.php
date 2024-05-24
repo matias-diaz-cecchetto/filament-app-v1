@@ -171,7 +171,7 @@ class EmployeeResource extends Resource
                         TextEntry::make('country.name'),
                         TextEntry::make('state.name'),
                         TextEntry::make('city.name'),
-                        TextEntry::make('departament.name'),
+                        TextEntry::make('department.name'),
 
                     ])->columns(2),
                 Section::make('User Name')
