@@ -5,8 +5,12 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\StateResource\Pages;
 use App\Filament\Resources\StateResource\RelationManagers;
 use App\Models\State;
+use Egulias\EmailValidator\Warning\TLD;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -45,11 +49,18 @@ class StateResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('country_id')
+                Tables\Columns\TextColumn::make('country.name')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    //->searchable(isIndividual: true, isGlobal: false)
+                    ->searchable(), //Busqueda individual de la columna // busqueda globar en false
                 Tables\Columns\TextColumn::make('name')
+                    ->label('State name')
+                    ->sortable()
+                    //->searchable(isIndividual: true)
                     ->searchable(),
+                    //->hidden(auth()->user()->email !=='admin@filament.com') // Consulta si se oculta
+                    //->visible(auth()->user()->email ==='admin@filament.com'), //Consulta si es visible
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -58,17 +69,31 @@ class StateResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-            ])
+            ])->defaultSort('country.name', 'desc')
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('State Info')
+                    ->schema([
+                        TextEntry::make('country.name')->label('Country Name'),
+                        TextEntry::make('name')->label('State name'),
+                    ])->columns(2)
             ]);
     }
 
