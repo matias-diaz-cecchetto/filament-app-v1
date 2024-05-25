@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Employee extends Model
 {
     use HasFactory;
+
     protected $guarded = [];
 
     public function department(): BelongsTo
@@ -28,4 +29,6 @@ class Employee extends Model
     {
         return $this->belongsTo(City::class);
     }
+
+
 }

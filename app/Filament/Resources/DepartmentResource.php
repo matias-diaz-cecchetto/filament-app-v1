@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class DepartmentResource extends Resource
 {
+    //DEPARTAMENTO
     protected static ?string $model = Department::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
