@@ -29,7 +29,7 @@ class ListEmployees extends ListRecords
                 ->badge(Employee::query()->where('date_hired', '>=', now()->subWeek())->count()),
             'Last week' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('date_hired', '<=', now()->subWeek()))
-                ->badge(Employee::query()->where('date_hired', '>=', now()->subWeek())->count()),
+                ->badge(Employee::query()->where('date_hired', '<=', now()->subWeek())->count()),
             'This Month' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('date_hired', '>=', now()->subMonth()))
                 ->badge(Employee::query()->where('date_hired', '>=', now()->subMonth())->count()),
