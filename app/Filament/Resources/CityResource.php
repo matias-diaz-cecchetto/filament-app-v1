@@ -4,9 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CityResource\Pages;
 use App\Filament\Resources\CityResource\RelationManagers;
+use App\Filament\Resources\CityResource\RelationManagers\EmployeesRelationManager;
 use App\Models\City;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,9 +19,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CityResource extends Resource
 {
+    //CIUDAD
     protected static ?string $model = City::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-flag';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
     protected static ?string $navigationLabel = 'City';
 
@@ -29,9 +34,12 @@ class CityResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('state_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\Select::make('state_id')
+                    ->relationship(name: 'state', titleAttribute: 'name')
+                    ->searchable() // Buscador
+                    //->multiple() // Seleccion multiple
+                    ->preload() // Lectura de todos
+                    ->required(),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -42,15 +50,18 @@ class CityResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('state_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('state.name')
+                    ->searchable()
+                    ->label('State name')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('name')
+
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
+                    //->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
@@ -70,10 +81,23 @@ class CityResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('City Info')
+                    ->schema([
+                        TextEntry::make('state.name')->label('State Name'),
+                        TextEntry::make('name')->label('City name'),
+                    ])->columns(2)
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [
             //
+            EmployeesRelationManager::class
         ];
     }
 

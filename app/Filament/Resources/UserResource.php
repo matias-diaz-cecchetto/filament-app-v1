@@ -15,9 +15,24 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
 {
+    //USUARIO
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
+
+    protected static ?string $navigationGroup = 'User Management';
+
+    // retorna la cantidad de elementos de un modelo
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    // Cambia el color de acuerdo a la cantidad de employees
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return static::getModel()::count() > 5 ? 'danger' : 'success';
+    }
 
     public static function form(Form $form): Form
     {

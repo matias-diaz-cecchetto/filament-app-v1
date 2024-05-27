@@ -1,87 +1,25 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\CountryResource\RelationManagers;
 
-use App\Filament\Resources\EmployeeResource\Pages;
-use App\Filament\Resources\EmployeeResource\RelationManagers;
 use App\Models\City;
-use App\Models\Employee;
 use App\Models\State;
-use Carbon\Carbon;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Infolists\Components\Section;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
-use Filament\Resources\Resource;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\Indicator;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 
-class EmployeeResource extends Resource
+class EmployeesRelationManager extends RelationManager
 {
-    //EMPLEADO
-    protected static ?string $model = Employee::class;
+    protected static string $relationship = 'employees';
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
-
-    protected static ?string $navigationGroup = 'Employee Management';
-
-    // Buscador global con un solo atributo
-    protected static ?string $recordTitleAttribute = 'first_name';
-
-    // El nombre que te aparece cuando encuentra la busqueda
-    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
-    {
-        return $record->last_name . ' '. $record->first_name;
-    }
-
-    // Busca un conjunto de atributos de la clase
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['first_name', 'last_name', 'middle_name', 'country.name'];
-    }
-
-    // Muestra cualquier detalle del resultado de la busqueda
-    public static function getGlobalSearchResultDetails(Model $record): array
-    {
-        return [
-            'Country' => $record->country->name,
-            'State' => $record->state->name
-        ];
-    }
-
-    // Buscador adicional global
-    public static function getGlobalSearchEloquentQuery(): Builder
-    {
-        return parent::getGlobalSearchEloquentQuery()->with(['country']);
-    }
-
-    // retorna la cantidad de elementos de un modelo
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
-
-    // Cambia el color de acuerdo a la cantidad de employees
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return static::getModel()::count() > 5 ? 'danger' : 'success';
-    }
-
-    public static function form(Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -157,9 +95,10 @@ class EmployeeResource extends Resource
             ]);
     }
 
-    public static function table(Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('first_name')
             ->columns([
                 Tables\Columns\TextColumn::make('country.name')
                     ->sortable()
@@ -199,47 +138,12 @@ class EmployeeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('Department')
-                    ->relationship('department', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->label('Filter by Department')
-                    ->indicator('Department'),
-                Filter::make('created_at')
-                    ->form([
-                        DatePicker::make('created_from'),
-                        DatePicker::make('created_until'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['created_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['created_until'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                            );
-                    })
-                    ->indicateUsing(function (array $data): array {
-                        $indicators = [];
-                        if ($data['created_from'] ?? null) {
-                            $indicators['created_from'] = 'Created from ' . Carbon::parse($data['created_from'])->toFormattedDateString();
-                        }
-                        if ($data['created_until'] ?? null) {
-                            $indicators['created_until'] = 'Created until ' . Carbon::parse($data['created_until'])->toFormattedDateString();
-                        }
-
-                        return $indicators;
-                    }),
+                //
             ])
-            ->filtersTriggerAction(
-                fn(Action $action) => $action
-                    ->button()
-                    ->label('Filter'),
-            )
+            ->headerActions([
+                Tables\Actions\CreateAction::make(),
+            ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -248,56 +152,5 @@ class EmployeeResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                Section::make('Relationships')
-                    ->schema([
-                        TextEntry::make('country.name'),
-                        TextEntry::make('state.name'),
-                        TextEntry::make('city.name'),
-                        TextEntry::make('department.name'),
-
-                    ])->columns(2),
-                Section::make('User Name')
-                    ->schema([
-                        TextEntry::make('first_name'),
-                        TextEntry::make('middle_name'),
-                        TextEntry::make('last_name'),
-
-                    ])->columns(2),
-                Section::make('User Address')
-                    ->schema([
-                        TextEntry::make('address'),
-                        TextEntry::make('zip_code'),
-
-                    ])->columns(2),
-                Section::make('User Dates')
-                    ->schema([
-                        TextEntry::make('date_of_birth'),
-                        TextEntry::make('date_hired'),
-
-                    ])->columns(2),
-            ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListEmployees::route('/'),
-            'create' => Pages\CreateEmployee::route('/create'),
-            //'view' => Pages\ViewEmployee::route('/{record}'),
-            'edit' => Pages\EditEmployee::route('/{record}/edit'),
-        ];
     }
 }
