@@ -24,6 +24,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -37,6 +38,48 @@ class EmployeeResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     protected static ?string $navigationGroup = 'Employee Management';
+
+    // Buscador global con un solo atributo
+    protected static ?string $recordTitleAttribute = 'first_name';
+
+    // El nombre que te aparece cuando encuentra la busqueda
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->last_name . ' '. $record->first_name;
+    }
+
+    // Busca un conjunto de atributos de la clase
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['first_name', 'last_name', 'middle_name', 'country.name'];
+    }
+
+    // Muestra cualquier detalle del resultado de la busqueda
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Country' => $record->country->name,
+            'State' => $record->state->name
+        ];
+    }
+
+    // Buscador adicional global
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['country']);
+    }
+
+    // retorna la cantidad de elementos de un modelo
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    // Cambia el color de acuerdo a la cantidad de employees
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return static::getModel()::count() > 5 ? 'danger' : 'success';
+    }
 
     public static function form(Form $form): Form
     {

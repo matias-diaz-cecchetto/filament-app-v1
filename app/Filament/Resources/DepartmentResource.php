@@ -30,6 +30,18 @@ class DepartmentResource extends Resource
 
     protected static ?string $navigationGroup = 'System Management';
 
+    // retorna la cantidad de elementos de un modelo
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    // Cambia el color de acuerdo a la cantidad de employees
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return static::getModel()::count() > 5 ? 'danger' : 'success';
+    }
+
     public static function form(Form $form): Form
     {
         return $form

@@ -37,5 +37,6 @@ class ListEmployees extends ListRecords
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('date_hired', '>=', now()->subYear()))
                 ->badge(Employee::query()->where('date_hired', '>=', now()->subYear())->count()),
         ];
+
     }
 }

@@ -37,7 +37,14 @@ class AdminPanelProvider extends PanelProvider
                 'warning' => Color::Orange,
             ])
             ->font('Poppins')
+            // Ordenar los grupos de navegacion
+            ->navigationGroups([
+                'Employee Management',
+                'System Management',
+                'User Management'
+            ])
             //->brandName('Filament Demo')
+            // Logo y tamaño
             ->brandLogo(asset('/images/logos/IntegraSoft.png'))
             ->brandLogoHeight('4rem')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
